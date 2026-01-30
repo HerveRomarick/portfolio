@@ -22,3 +22,7 @@ yarn-error.log
 .netlify
 public/build/*
 !public/build/manifest.json
+
+.vercel
+.env*.local
+/public/build
