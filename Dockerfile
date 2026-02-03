@@ -26,7 +26,7 @@ RUN apt update && apt install -y nginx
 
 # Copier les fichiers
 COPY . /var/www/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /var/www/html
 
