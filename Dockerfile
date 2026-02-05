@@ -1,37 +1,37 @@
-FROM php:8.2-fpm
+# Utilise une image officielle avec PHP 8.2 (ou 8.3 / 8.1 selon tes besoins)
+FROM php:8.2-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
+# Installe les dépendances système nécessaires pour Laravel
+RUN apk add --no-cache \
+    libzip-dev \
     zip \
- && docker-php-ext-install pdo_mysql mbstring bcmath gd
+    unzip \
+    git \
+    && docker-php-ext-install pdo_mysql zip
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Installe Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
+# Copie ton code
+WORKDIR /var/www/html
 COPY . .
 
-RUN chown -R www-data:www-data /var/www \
- && chmod -R 775 storage bootstrap/cache
+# Installe les dépendances PHP
+RUN composer install --optimize-autoloader --no-dev --no-interaction
 
+# Permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expose le port (PHP-FPM)
 EXPOSE 9000
+
 CMD ["php-fpm"]
 
-# Installer nginx
-RUN apt update && apt install -y nginx
+# ... suite du Dockerfile précédent ...
 
-# Copier les fichiers
-COPY . /var/www/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+# Installe Nginx
+RUN apk add --no-cache nginx
 
-WORKDIR /var/www/html
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# Exposer le port HTTP
-EXPOSE 80
-
-# Lancer nginx + php-fpm
-CMD service nginx start && php-fpm
+CMD ["sh", "-c", "nginx && php-fpm"]
