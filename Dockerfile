@@ -34,4 +34,10 @@ RUN apk add --no-cache nginx
 
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod -R 775 /var/www/html
+RUN docker-php-ext-install pdo pdo_mysql
+RUN apk add --no-cache libzip-dev \
+ && docker-php-ext-install zip
+
 CMD ["sh", "-c", "nginx && php-fpm"]
