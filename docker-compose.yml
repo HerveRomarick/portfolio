@@ -1,15 +1,15 @@
-version: "3.9"
-
 services:
   php:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_URL: http://localhost
     command: >
       sh -c "
       php artisan key:generate --force &&
-      php artisan migrate --force || true &&
       php-fpm
       "
-    volumes:
-      - ./src:/var/www/html
