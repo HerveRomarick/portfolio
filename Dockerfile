@@ -17,7 +17,12 @@ WORKDIR /var/www/html
 COPY . .
 
 # Installe les dépendances PHP
-RUN composer install --optimize-autoloader --no-dev --no-interaction
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
+
 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
@@ -39,5 +44,6 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN docker-php-ext-install pdo pdo_mysql
 RUN apk add --no-cache libzip-dev \
  && docker-php-ext-install zip
+RUN composer install
 
 CMD ["sh", "-c", "nginx && php-fpm"]

@@ -1,48 +1,15 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  app:
+  php:
     build:
       context: .
       dockerfile: Dockerfile
-    image: portfolio-app
-    container_name: portfolio-app
-    restart: unless-stopped
-    working_dir: /var/www
+    command: >
+      sh -c "
+      php artisan key:generate --force &&
+      php artisan migrate --force || true &&
+      php-fpm
+      "
     volumes:
-      - .:/var/www
-    networks:
-      - portfolio-net
-
-  nginx:
-    image: nginx:alpine
-    container_name: portfolio-nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - .:/var/www
-      - ./default.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - portfolio-net
-
-  db:
-    image: mysql:8.0
-    container_name: portfolio-db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_PASSWORD: secret
-      MYSQL_USER: laravel
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - portfolio-net
-
-networks:
-  portfolio-net:
-    driver: bridge
-
-volumes:
-  dbdata:
+      - ./src:/var/www/html
